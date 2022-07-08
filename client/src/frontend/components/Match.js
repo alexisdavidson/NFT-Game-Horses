@@ -11,7 +11,6 @@ import { Unity, useUnityContext } from "react-unity-webgl";
 
 const Match = (account) => {
     const [match, setMatch] = useState([])
-    const [loading, setLoading] = useState(true)
     const location = useLocation();
     const [items, setItems] = useState([])
     const [matchLength, setMatchLength] = useState([])
@@ -78,7 +77,6 @@ const Match = (account) => {
             })
         }
 
-        setLoading(false)
         setItems(items)
     }
 
@@ -248,52 +246,39 @@ const Match = (account) => {
         }
     }
 
-    const { unityProvider } = useUnityContext({
+    const { unityProvider, isLoaded, loadingProgression, sendMessage, addEventListener, removeEventListener } = useUnityContext({
         loaderUrl: "build/Build.loader.js",
         dataUrl: "build/Build.data",
         frameworkUrl: "build/Build.framework.js",
         codeUrl: "build/Build.wasm",
       });
 
-    const loadUnityWebGL = () => {
-        setLoading(false)
-    }
-
+    const handleRequestData = () => {
+        sendMessage("GameController", "ReceiveReactData", 5410);
+      }
+      
     useEffect(() => {
-        // clearAllIntervals()
-        // displayMatch()
-        loadUnityWebGL()
-    }, [])
+        addEventListener("HandleRequestData", handleRequestData);
+        return () => {
+          removeEventListener("HandleRequestData", handleRequestData);
+        };
+      }, [addEventListener, removeEventListener, handleRequestData]);
 
-    // useEffect(() => {
-    //     if (!(matchInitiated === true) && startingHorse != 0 && items.length > 0 && matchLength > 0 && match != null && match != undefined) {
-    //         console.log("items updated.")
-    //         console.log(items)
-            
-    //         setCurrentActiveHorse(startingHorse)
-    //         console.log("Horse to start is " + currentActiveHorse)
-    //         horseFlip = document.querySelector('.horse-flip');
-    //         horseNoflip = document.querySelector('.horse-noflip');
-    //         updateHorseGlow()
-            
-    //         createIntervalLoop()
 
-    //         setMatchInitiated(true)
-    //     }
-    // }, [items, match, matchLength]);
-
-    if (loading) return (
-        <div className="flex justify-center">
-            <h2>Loading Player...</h2>
-        </div>
-    )
+    const loadingPercentage = Math.round(loadingProgression * 100);
 
     return (
         <div className="flex justify-center">
-            <div className="px-5 container">
+            <div className="pt-5 container">
                 <Row>
-                    <h1>WebGL Player</h1>
-                    <Unity unityProvider={unityProvider} />
+                    {isLoaded === false && (
+                        // We'll conditionally render the loading overlay if the Unity
+                        // Application is not loaded.
+                        <div className="loading-overlay">
+                        <p>Loading... ({loadingPercentage}%)</p>
+                        </div>
+                    )}
+                    <Unity unityProvider={unityProvider} style={{width: "1400px", height: "600px"}}/>
                 </Row>
             </div>
         </div>
