@@ -113,7 +113,8 @@ const Home = ({ account }) => {
     }
 
     const loadOpenSeaItems = async () => {
-        let items = await fetch(`${configContract.OPENSEA_API}/assets?owner=${account}&asset_contract_address=${configContract.CONTRACT_ADDRESS}&format=json`)
+        // let items = await fetch(`${configContract.OPENSEA_API}/assets?owner=${account}&asset_contract_address=${configContract.CONTRACT_ADDRESS}&format=json`)
+        let items = await fetch(`${configContract.OPENSEA_API}/assets?asset_contract_address=${configContract.CONTRACT_ADDRESS}&format=json`)
         .then((res) => res.json())
         .then((res) => {
           return res.assets
@@ -125,6 +126,7 @@ const Home = ({ account }) => {
         })
 
         setLoading(false)
+        items.shift() // first element is null for some reason on this smart contract. Remove it.
         setItems(items)
     }
 
@@ -162,14 +164,19 @@ const Home = ({ account }) => {
                                     <Card.Body color="secondary">
                                     <Card.Title>{item.name}</Card.Title>
                                     <Card.Text>
-                                        {item.description}
+                                        Breed: {item.traits.filter(e => e.trait_type == "breed")[0]?.value}
+                                        {/* <br/>
+                                        Alertness: {item.traits.filter(e => e.trait_type == "Alertness")[0]?.value}
                                         <br/>
+                                        Adaptibility: {item.traits.filter(e => e.trait_type == "Adaptibility")[0]?.value}
                                         <br/>
-                                        Attack: {item.traits.filter(e => e.trait_type == "Attack")[0].value}
+                                        Strength: {item.traits.filter(e => e.trait_type == "Strength")[0]?.value}
                                         <br/>
-                                        Defense: {item.traits.filter(e => e.trait_type == "Defense")[0].value}
+                                        Pedigree: {item.traits.filter(e => e.trait_type == "Pedigree")[0]?.value}
                                         <br/>
-                                        Luck: {item.traits.filter(e => e.trait_type == "Luck")[0].value}
+                                        Stamina: {item.traits.filter(e => e.trait_type == "Stamina")[0]?.value}
+                                        <br/>
+                                        Instability: {item.traits.filter(e => e.trait_type == "Instability")[0]?.value} */}
                                     </Card.Text>
                                     </Card.Body>
                                     <Card.Footer>
