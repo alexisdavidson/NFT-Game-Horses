@@ -7,6 +7,7 @@ import defenseIcon from '../images/defense.png'
 import luckIcon from '../images/luck.png'
 import configData from "./configData.json";
 import configContract from "./configContract.json";
+import { Unity, useUnityContext } from "react-unity-webgl";
 
 const Match = (account) => {
     const [match, setMatch] = useState([])
@@ -247,152 +248,54 @@ const Match = (account) => {
         }
     }
 
+    const { unityProvider } = useUnityContext({
+        loaderUrl: "build/Build.loader.js",
+        dataUrl: "build/Build.data",
+        frameworkUrl: "build/Build.framework.js",
+        codeUrl: "build/Build.wasm",
+      });
+
+    const loadUnityWebGL = () => {
+        setLoading(false)
+    }
+
     useEffect(() => {
-        clearAllIntervals()
-        displayMatch()
+        // clearAllIntervals()
+        // displayMatch()
+        loadUnityWebGL()
     }, [])
 
-    useEffect(() => {
-        if (!(matchInitiated === true) && startingHorse != 0 && items.length > 0 && matchLength > 0 && match != null && match != undefined) {
-            console.log("items updated.")
-            console.log(items)
+    // useEffect(() => {
+    //     if (!(matchInitiated === true) && startingHorse != 0 && items.length > 0 && matchLength > 0 && match != null && match != undefined) {
+    //         console.log("items updated.")
+    //         console.log(items)
             
-            setCurrentActiveHorse(startingHorse)
-            console.log("Horse to start is " + currentActiveHorse)
-            horseFlip = document.querySelector('.horse-flip');
-            horseNoflip = document.querySelector('.horse-noflip');
-            updateHorseGlow()
+    //         setCurrentActiveHorse(startingHorse)
+    //         console.log("Horse to start is " + currentActiveHorse)
+    //         horseFlip = document.querySelector('.horse-flip');
+    //         horseNoflip = document.querySelector('.horse-noflip');
+    //         updateHorseGlow()
             
-            createIntervalLoop()
+    //         createIntervalLoop()
 
-            setMatchInitiated(true)
-        }
-    }, [items, match, matchLength]);
+    //         setMatchInitiated(true)
+    //     }
+    // }, [items, match, matchLength]);
 
     if (loading) return (
         <div className="flex justify-center">
-            <h2>Fight!</h2>
+            <h2>Loading Player...</h2>
         </div>
     )
 
     return (
         <div className="flex justify-center">
-            {items.length > 0 ?
-                <div className="px-5 container">
-                    <Row>
-                        <Col xs="3">
-                            <p className="py-3">
-                                {items[0].Attack} <img src={attackIcon} width="40"></img>
-                                {items[0].Defense} <img src={defenseIcon} width="40"></img>
-                                {items[0].Luck} <img src={luckIcon} width="40"></img>
-                            </p>
-                        </Col>
-                        <Col><h2>Fight!</h2></Col>
-                        <Col xs="3">
-                            <p className="py-3">
-                                {items[1].Attack} <img src={attackIcon} width="40"></img>
-                                {items[1].Defense} <img src={defenseIcon} width="40"></img>
-                                {items[1].Luck} <img src={luckIcon} width="40"></img>
-                            </p>
-                        </Col>
-                    </Row>
-                    {/* <p>Winner of match {location.state.matchId} is: {match.winner}</p> */}
-                    {/* <p>Race log: {match.race_log}</p> */}
-                    <Row>
-                        <Col xs="3">
-                            <img src={items[0].ImageUrl} width="300" className="horse-flip horse-glow"></img>
-                            <Row>
-                                <ProgressBar style={{marginTop: "40px", height:"40px", width:"100%", backgroundColor: "black", fontSize: "18px"}}
-                                variant="danger" now={100 * items[0].Health / items[0].HealthMax} label={items[0].Health + '/' + items[0].HealthMax} />
-                            </Row>
-                            <div className='d-grid'>
-                                <br/>
-                                {match.winner === 1 ?
-                                <h2 className="text-success linko result-hide">Victory</h2>
-                                :
-                                <h2 className="text-danger linko result-hide">Defeat</h2>
-                                }
-                            </div>
-                            <div style={{textAlign: "center"}}>
-                                <span style={{fontSize: "18px", fontWeight: "bold"}}>{match.player1}</span><br/>
-                                <span style={{fontSize: "12px"}} className="text-dark">{match.wallet1}</span>
-                            </div>
-                        </Col>
-                        
-                        <Col xs="1"></Col>
-                        <Col>
-                            <p style={{textAlign:"left"}} className="linko linko-hide"> The Race Begins! </p>
-                            <p style={{textAlign:"left"}} className="linko linko-hide"> {goFirstText(JSON.parse(match.race_log)[0].horse)} </p>
-                            {JSON.parse(match.race_log).map((val) => {
-                                return (
-                                    <p style={{textAlign:"left"}} className="linko linko-hide">
-                                        {
-                                            attackText(val.horse)} for {val.attackValue} damage. {val.isCriticalStrike ? <b> Critical Strike! </b> : <span></span>
-                                        }
-                                    </p>
-                                );
-                            })}
-                            <p style={{textAlign:"left"}} className="linko linko-hide"> {defeatedText()} </p>
-                            <p style={{textAlign:"left"}} className="linko linko-hide"> {victoryOrDefeatText()} </p>
-                        </Col>
-
-                        <Col xs="3">
-                            <img src={items[1].ImageUrl} width="300" className="horse-noflip"></img>
-                            <Row>
-                                <ProgressBar style={{marginTop: "40px", height:"40px", width:"100%", backgroundColor: "black", fontSize: "18px"}}
-                                variant="danger" now={100 * items[1].Health / items[1].HealthMax} label={items[1].Health + '/' + items[1].HealthMax} />
-                            </Row>
-                            <div className='d-grid'>
-                                <br/>
-                                {match.winner === 2 ?
-                                <h2 className="text-success linko result-hide">Victory</h2>
-                                :
-                                <h2 className="text-danger linko result-hide">Defeat</h2>
-                                }
-                            </div>
-                            <div style={{textAlign: "center"}}>
-                                <span style={{fontSize: "18px", fontWeight: "bold"}}>{match.player2}</span><br/>
-                                <span style={{fontSize: "12px"}} className="text-dark">{match.wallet2}</span>
-                            </div>
-                        </Col>
-                    </Row>
-                    {/* <Row>
-                        <h2>Race Summary</h2>
-                        <table style={{textAlign:"center"}} className="table table-bordered table-striped table-dark">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Horse</th>
-                                    <th scope="col">Attack</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {JSON.parse(match.race_log).map((val) => {
-                                    return (
-                                        <tr>
-                                            <th scope="row">{val.horse}</th>
-                                            <td>
-                                                {val.isCriticalStrike ? 
-                                                    <b> 
-                                                        {val.attackValue}!
-                                                    </b>
-                                                :
-                                                    <span> 
-                                                        {val.attackValue}
-                                                    </span>
-                                                }
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    </Row> */}
-                </div>
-            : (
-                <main style={{ padding: "1rem 0" }}>
-                    <h2>Loading...</h2>
-                </main>
-            )}
+            <div className="px-5 container">
+                <Row>
+                    <h1>WebGL Player</h1>
+                    <Unity unityProvider={unityProvider} />
+                </Row>
+            </div>
         </div>
     );
 }

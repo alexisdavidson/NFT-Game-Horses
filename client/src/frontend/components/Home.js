@@ -113,8 +113,8 @@ const Home = ({ account }) => {
     }
 
     const loadOpenSeaItems = async () => {
-        // let items = await fetch(`${configContract.OPENSEA_API}/assets?owner=${account}&asset_contract_address=${configContract.CONTRACT_ADDRESS}&format=json`)
-        let items = await fetch(`${configContract.OPENSEA_API}/assets?asset_contract_address=${configContract.CONTRACT_ADDRESS}&format=json`)
+        let items = await fetch(`${configContract.OPENSEA_API}/assets?owner=${account}&asset_contract_address=${configContract.CONTRACT_ADDRESS}&format=json`)
+        // let items = await fetch(`${configContract.OPENSEA_API}/assets?asset_contract_address=${configContract.CONTRACT_ADDRESS}&format=json`)
         .then((res) => res.json())
         .then((res) => {
           return res.assets
@@ -126,7 +126,6 @@ const Home = ({ account }) => {
         })
 
         setLoading(false)
-        items.shift() // first element is null for some reason on this smart contract. Remove it.
         setItems(items)
     }
 
