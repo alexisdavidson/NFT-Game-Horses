@@ -15,12 +15,12 @@ const Match = (account) => {
     const [items, setItems] = useState([])
     const [matchLength, setMatchLength] = useState([])
     const [matchInitiated, setMatchInitiated] = useState(false)
-    const [startingDragon, setStartingDragon] = useState(0)
+    const [startingHorse, setStartingHorse] = useState(0)
 
-    let playedDragonId = 1
-    let dragonNoflip = null
-    let dragonFlip = null
-    let currentActiveDragon = 0
+    let playedHorseId = 1
+    let horseNoflip = null
+    let horseFlip = null
+    let currentActiveHorse = 0
     let displayOffset = 2
     let elementsShown = 0
 
@@ -38,14 +38,14 @@ const Match = (account) => {
         return 50
     }
 
-    const setCurrentActiveDragon = (activeDragon) => {
-        console.log("setCurrentActiveDragon " + currentActiveDragon + " to " + activeDragon)
-        currentActiveDragon = activeDragon
+    const setCurrentActiveHorse = (activeHorse) => {
+        console.log("setCurrentActiveHorse " + currentActiveHorse + " to " + activeHorse)
+        currentActiveHorse = activeHorse
     }
 
     const loadOpenSeaItems = async (match) => {
-        let dragons = []
-        dragons.push(await fetch(`${configContract.OPENSEA_API}/asset/${configContract.CONTRACT_ADDRESS}/${match.dragon1}`)
+        let horses = []
+        horses.push(await fetch(`${configContract.OPENSEA_API}/asset/${configContract.CONTRACT_ADDRESS}/${match.horse1}`)
         .then((res) => res.json())
         .then((res) => { return res })
         .catch((e) => {
@@ -54,7 +54,7 @@ const Match = (account) => {
           return null
         }))
 
-        dragons.push(await fetch(`${configContract.OPENSEA_API}/asset/${configContract.CONTRACT_ADDRESS}/${match.dragon2}`)
+        horses.push(await fetch(`${configContract.OPENSEA_API}/asset/${configContract.CONTRACT_ADDRESS}/${match.horse2}`)
         .then((res) => res.json())
         .then((res) => { return res })
         .catch((e) => {
@@ -63,17 +63,17 @@ const Match = (account) => {
           return null
         }))
 
-        if (dragons[1].owner.account === account) playedDragonId = 2
+        if (horses[1].owner.account === account) playedHorseId = 2
 
         let items = []
-        for(let i = 0; i < dragons.length; i ++) {
+        for(let i = 0; i < horses.length; i ++) {
             items.push({
-                ImageUrl: dragons[i].image_url,
-                Health: typeToHealth(dragons[i].traits.filter(e => e.trait_type == "Breed")[0].value),
-                HealthMax: typeToHealth(dragons[i].traits.filter(e => e.trait_type == "Breed")[0].value),
-                Attack: dragons[i].traits.filter(e => e.trait_type == "Attack")[0].value,
-                Luck: dragons[i].traits.filter(e => e.trait_type == "Luck")[0].value,
-                Defense: dragons[i].traits.filter(e => e.trait_type == "Defense")[0].value
+                ImageUrl: horses[i].image_url,
+                Health: typeToHealth(horses[i].traits.filter(e => e.trait_type == "Breed")[0].value),
+                HealthMax: typeToHealth(horses[i].traits.filter(e => e.trait_type == "Breed")[0].value),
+                Attack: horses[i].traits.filter(e => e.trait_type == "Attack")[0].value,
+                Luck: horses[i].traits.filter(e => e.trait_type == "Luck")[0].value,
+                Defense: horses[i].traits.filter(e => e.trait_type == "Defense")[0].value
             })
         }
 
@@ -81,45 +81,45 @@ const Match = (account) => {
         setItems(items)
     }
 
-    // const showDragons = () => {
-    //     var elementResult = document.querySelector('.dragon-hide');
+    // const showHorses = () => {
+    //     var elementResult = document.querySelector('.horse-hide');
     //     if (elementResult != null) {
-    //         elementResult.classList.remove('dragon-hide');
+    //         elementResult.classList.remove('horse-hide');
     //         elementResult.classList.add('linko-show');
-    //         elementResult = document.querySelector('.dragon-hide');
-    //         elementResult.classList.remove('dragon-hide');
+    //         elementResult = document.querySelector('.horse-hide');
+    //         elementResult.classList.remove('horse-hide');
     //         elementResult.classList.add('linko-show');
     //     }
     // }
 
-    const attackText = (dragonId) => {
-        // console.log("dragonId: " + dragonId + ", playerDragonId: " + playedDragonId)
-        if (dragonId === playedDragonId)
+    const attackText = (horseId) => {
+        // console.log("horseId: " + horseId + ", playerHorseId: " + playedHorseId)
+        if (horseId === playedHorseId)
             return "You attack"
         else return "Opponent attacks"
     }
 
-    const goFirstText = (dragonId) => {
-        // console.log("dragonId: " + dragonId + ", playerDragonId: " + playedDragonId)
-        if (dragonId === playedDragonId)
+    const goFirstText = (horseId) => {
+        // console.log("horseId: " + horseId + ", playerHorseId: " + playedHorseId)
+        if (horseId === playedHorseId)
             return "You go first!"
         else return "Opponent goes first!"
     }
 
     const defeatedText = () => {
-        let battle_log = JSON.parse(match.battle_log)
-        let lastDragonAttacking = battle_log[battle_log.length - 1].dragon
+        let race_log = JSON.parse(match.race_log)
+        let lastHorseAttacking = race_log[race_log.length - 1].horse
 
-        if (lastDragonAttacking === playedDragonId)
+        if (lastHorseAttacking === playedHorseId)
             return "You have defeated the opponent!"
         else return "You have been defeated."
     }
 
     const victoryOrDefeatText = () => {
-        let battle_log = JSON.parse(match.battle_log)
-        let lastDragonAttacking = battle_log[battle_log.length - 1].dragon
+        let race_log = JSON.parse(match.race_log)
+        let lastHorseAttacking = race_log[race_log.length - 1].horse
 
-        if (lastDragonAttacking === playedDragonId)
+        if (lastHorseAttacking === playedHorseId)
             return "Victory!"
         else return "Defeat."
     }
@@ -134,70 +134,70 @@ const Match = (account) => {
         }).then((response) => {
             const matchTemp = response.data[0]
             setMatch(matchTemp)
-            setMatchLength(JSON.parse(matchTemp.battle_log).length)
-            setStartingDragon(JSON.parse(matchTemp.battle_log)[0].dragon)
+            setMatchLength(JSON.parse(matchTemp.race_log).length)
+            setStartingHorse(JSON.parse(matchTemp.race_log)[0].horse)
 
-            console.log("matchTemp.battle_log[0].dragon: " + currentActiveDragon)
+            console.log("matchTemp.race_log[0].horse: " + currentActiveHorse)
             console.log("Match winner is " + matchTemp.winner)
 
             loadOpenSeaItems(matchTemp)
         })
     }
 
-    const updateDragonGlow = () => {
-        console.log("updateDragonGlow, currentActiveDragon: " + currentActiveDragon)
-        let dragonGlow = document.querySelector('.dragon-glow');
-        if (dragonGlow != null) dragonGlow?.classList?.remove('dragon-glow')
+    const updateHorseGlow = () => {
+        console.log("updateHorseGlow, currentActiveHorse: " + currentActiveHorse)
+        let horseGlow = document.querySelector('.horse-glow');
+        if (horseGlow != null) horseGlow?.classList?.remove('horse-glow')
 
-        if (currentActiveDragon === 1) {
-            dragonFlip.classList.add('dragon-glow');
+        if (currentActiveHorse === 1) {
+            horseFlip.classList.add('horse-glow');
         }
         else {
-            dragonNoflip.classList.add('dragon-glow');
+            horseNoflip.classList.add('horse-glow');
         }
     }
 
-    const startBattleEventAnimation = () => {
-        // console.log("startBattleEventAnimation")
-        // console.log(currentActiveDragon)
-        // console.log(dragonFlip)
-        // console.log(dragonNoflip)
+    const startRaceEventAnimation = () => {
+        // console.log("startRaceEventAnimation")
+        // console.log(currentActiveHorse)
+        // console.log(horseFlip)
+        // console.log(horseNoflip)
 
-        if (currentActiveDragon === 1) {
-            dragonFlip.classList.add('dragon-flip-attack');
-            dragonNoflip.classList.add('dragon-hurt');
+        if (currentActiveHorse === 1) {
+            horseFlip.classList.add('horse-flip-attack');
+            horseNoflip.classList.add('horse-hurt');
         }
         else {
-            dragonNoflip.classList.add('dragon-attack');
-            dragonFlip.classList.add('dragon-flip-hurt');
+            horseNoflip.classList.add('horse-attack');
+            horseFlip.classList.add('horse-flip-hurt');
         }
         
-        setCurrentActiveDragon(1 - (currentActiveDragon - 1) + 1)
+        setCurrentActiveHorse(1 - (currentActiveHorse - 1) + 1)
 
         setTimeout(function(){
             if (elementsShown - displayOffset < matchLength) {
-                let dragonAttack = document.querySelector('.dragon-attack')
-                if (dragonAttack != null) dragonNoflip.classList.remove('dragon-attack');
-                let dragonHurt = document.querySelector('.dragon-hurt')
-                if (dragonHurt != null) dragonNoflip.classList.remove('dragon-hurt');
-                let dragonFlipAttack = document.querySelector('.dragon-flip-attack')
-                if (dragonFlipAttack != null) dragonFlip.classList.remove('dragon-flip-attack');
-                let dragonFlipHurt = document.querySelector('.dragon-flip-hurt')
-                if (dragonFlipHurt != null) dragonFlip.classList.remove('dragon-flip-hurt');
+                let horseAttack = document.querySelector('.horse-attack')
+                if (horseAttack != null) horseNoflip.classList.remove('horse-attack');
+                let horseHurt = document.querySelector('.horse-hurt')
+                if (horseHurt != null) horseNoflip.classList.remove('horse-hurt');
+                let horseFlipAttack = document.querySelector('.horse-flip-attack')
+                if (horseFlipAttack != null) horseFlip.classList.remove('horse-flip-attack');
+                let horseFlipHurt = document.querySelector('.horse-flip-hurt')
+                if (horseFlipHurt != null) horseFlip.classList.remove('horse-flip-hurt');
 
-                updateDragonGlow();
+                updateHorseGlow();
             }
         }, 1200);
     }
 
-    const damageDragon = (dragonId) => {
+    const damageHorse = (horseId) => {
         setTimeout(function(){
-            let attackValue = JSON.parse(match.battle_log)[elementsShown - displayOffset - 1].attackValue
+            let attackValue = JSON.parse(match.race_log)[elementsShown - displayOffset - 1].attackValue
             console.log("attackValue: " + attackValue)
             
-            items[dragonId].Health -= attackValue
-            if (items[dragonId].Health < 0) items[dragonId].Health = 0
-            console.log("Dragon " + dragonId + ": " + items[dragonId].Health)
+            items[horseId].Health -= attackValue
+            if (items[horseId].Health < 0) items[horseId].Health = 0
+            console.log("Horse " + horseId + ": " + items[horseId].Health)
 
             setItems([...items])
         }, 300);
@@ -226,9 +226,9 @@ const Match = (account) => {
                 // console.log("matchLength: " + matchLength)
 
                 if (elementsShown >= displayOffset && elementsShown - displayOffset < matchLength) {
-                    // console.log("Call startBattleEventAnimation")
-                    startBattleEventAnimation()
-                    damageDragon(currentActiveDragon - 1)
+                    // console.log("Call startRaceEventAnimation")
+                    startRaceEventAnimation()
+                    damageHorse(currentActiveHorse - 1)
                 }
 
                 elementsShown += 1
@@ -253,15 +253,15 @@ const Match = (account) => {
     }, [])
 
     useEffect(() => {
-        if (!(matchInitiated === true) && startingDragon != 0 && items.length > 0 && matchLength > 0 && match != null && match != undefined) {
+        if (!(matchInitiated === true) && startingHorse != 0 && items.length > 0 && matchLength > 0 && match != null && match != undefined) {
             console.log("items updated.")
             console.log(items)
             
-            setCurrentActiveDragon(startingDragon)
-            console.log("Dragon to start is " + currentActiveDragon)
-            dragonFlip = document.querySelector('.dragon-flip');
-            dragonNoflip = document.querySelector('.dragon-noflip');
-            updateDragonGlow()
+            setCurrentActiveHorse(startingHorse)
+            console.log("Horse to start is " + currentActiveHorse)
+            horseFlip = document.querySelector('.horse-flip');
+            horseNoflip = document.querySelector('.horse-noflip');
+            updateHorseGlow()
             
             createIntervalLoop()
 
@@ -297,10 +297,10 @@ const Match = (account) => {
                         </Col>
                     </Row>
                     {/* <p>Winner of match {location.state.matchId} is: {match.winner}</p> */}
-                    {/* <p>Battle log: {match.battle_log}</p> */}
+                    {/* <p>Race log: {match.race_log}</p> */}
                     <Row>
                         <Col xs="3">
-                            <img src={items[0].ImageUrl} width="300" className="dragon-flip dragon-glow"></img>
+                            <img src={items[0].ImageUrl} width="300" className="horse-flip horse-glow"></img>
                             <Row>
                                 <ProgressBar style={{marginTop: "40px", height:"40px", width:"100%", backgroundColor: "black", fontSize: "18px"}}
                                 variant="danger" now={100 * items[0].Health / items[0].HealthMax} label={items[0].Health + '/' + items[0].HealthMax} />
@@ -321,13 +321,13 @@ const Match = (account) => {
                         
                         <Col xs="1"></Col>
                         <Col>
-                            <p style={{textAlign:"left"}} className="linko linko-hide"> The Battle Begins! </p>
-                            <p style={{textAlign:"left"}} className="linko linko-hide"> {goFirstText(JSON.parse(match.battle_log)[0].dragon)} </p>
-                            {JSON.parse(match.battle_log).map((val) => {
+                            <p style={{textAlign:"left"}} className="linko linko-hide"> The Race Begins! </p>
+                            <p style={{textAlign:"left"}} className="linko linko-hide"> {goFirstText(JSON.parse(match.race_log)[0].horse)} </p>
+                            {JSON.parse(match.race_log).map((val) => {
                                 return (
                                     <p style={{textAlign:"left"}} className="linko linko-hide">
                                         {
-                                            attackText(val.dragon)} for {val.attackValue} damage. {val.isCriticalStrike ? <b> Critical Strike! </b> : <span></span>
+                                            attackText(val.horse)} for {val.attackValue} damage. {val.isCriticalStrike ? <b> Critical Strike! </b> : <span></span>
                                         }
                                     </p>
                                 );
@@ -337,7 +337,7 @@ const Match = (account) => {
                         </Col>
 
                         <Col xs="3">
-                            <img src={items[1].ImageUrl} width="300" className="dragon-noflip"></img>
+                            <img src={items[1].ImageUrl} width="300" className="horse-noflip"></img>
                             <Row>
                                 <ProgressBar style={{marginTop: "40px", height:"40px", width:"100%", backgroundColor: "black", fontSize: "18px"}}
                                 variant="danger" now={100 * items[1].Health / items[1].HealthMax} label={items[1].Health + '/' + items[1].HealthMax} />
@@ -357,19 +357,19 @@ const Match = (account) => {
                         </Col>
                     </Row>
                     {/* <Row>
-                        <h2>Battle Summary</h2>
+                        <h2>Race Summary</h2>
                         <table style={{textAlign:"center"}} className="table table-bordered table-striped table-dark">
                             <thead>
                                 <tr>
-                                    <th scope="col">Dragon</th>
+                                    <th scope="col">Horse</th>
                                     <th scope="col">Attack</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {JSON.parse(match.battle_log).map((val) => {
+                                {JSON.parse(match.race_log).map((val) => {
                                     return (
                                         <tr>
-                                            <th scope="row">{val.dragon}</th>
+                                            <th scope="row">{val.horse}</th>
                                             <td>
                                                 {val.isCriticalStrike ? 
                                                     <b> 

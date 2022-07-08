@@ -27,8 +27,8 @@ const MatchHistory = () => {
             console.log(error.response);
         })
     }
-    const submitWatchBattle = (matchId) => {
-        console.log("Watch battle of match id " + matchId)
+    const submitWatchRace = (matchId) => {
+        console.log("Watch race of match id " + matchId)
         routeChangeMatch(matchId)
     }
 
@@ -46,8 +46,8 @@ const MatchHistory = () => {
                         <th scope="col">Replay</th>
                         <th scope="col">Player 1</th>
                         <th scope="col">Player 2</th>
-                        <th scope="col">Dragon 1</th>
-                        <th scope="col">Dragon 2</th>
+                        <th scope="col">Horse 1</th>
+                        <th scope="col">Horse 2</th>
                         <th scope="col">Winner</th>
                         <th scope="col">Date</th>
                     </tr>
@@ -57,15 +57,15 @@ const MatchHistory = () => {
                         return (
                             <tr>
                                 <td>
-                                    <Button className="py-0" variant="secondary" size="sm" onClick={() => submitWatchBattle(val.id)}>
+                                    <Button className="py-0" variant="secondary" size="sm" onClick={() => submitWatchRace(val.id)}>
                                         Replay
                                     </Button>
                                 </td>
                                 <th scope="row">{val.id}</th>
                                 <td>{val.wallet1}</td>
                                 <td>{val.wallet2}</td>
-                                <td>{val.dragon1}</td>
-                                <td>{val.dragon2}</td>
+                                <td>{val.horse1}</td>
+                                <td>{val.horse2}</td>
                                 <td>{val.winner}</td>
                                 <td>{val.date_played}</td>
                             </tr>

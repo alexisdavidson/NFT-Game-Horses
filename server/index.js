@@ -4,7 +4,7 @@ import dotenv from 'dotenv'
 import cors from 'cors'
 import bodyParser from 'body-parser'
 import moment from 'moment'
-import { battle } from './battle.js'
+import { race } from './race.js'
 
 const app = express()
 
@@ -58,22 +58,22 @@ app.get('/api/get_match_history', (req, res) => {
 // Get opponent from matchmaking pool
 app.get('/api/get_opponent', (req, res) => {
     const walletAddress = req.query.walletAddress
-    const dragonId = req.query.dragonId
+    const horseId = req.query.horseId
 
     const lettersAndNumbersPattern = /^[a-z0-9]+$/;
     if(walletAddress != undefined && walletAddress != null && !walletAddress.match(lettersAndNumbersPattern))
         return res.status(400).json({ err: "Invalid input. walletAddress no special characters and no numbers, please!"})
 
     const numbersPattern = /^[0-9]+$/;
-    if(dragonId != undefined && dragonId != null && !dragonId.toString().match(numbersPattern))
-        return res.status(400).json({ err: "Invalid input. dragonId only numbers!"})
+    if(horseId != undefined && horseId != null && !horseId.toString().match(numbersPattern))
+        return res.status(400).json({ err: "Invalid input. horseId only numbers!"})
 
-    let sqlSelect = "SELECT * FROM matchmaking_pool WHERE wallet_address != ? AND dragon_id != ? LIMIT 1;"
+    let sqlSelect = "SELECT * FROM matchmaking_pool WHERE wallet_address != ? AND horse_id != ? LIMIT 1;"
     if (canFightOwnWallet === "TRUE") {
-        sqlSelect = "SELECT * FROM matchmaking_pool WHERE dragon_id != ? AND dragon_id != ? LIMIT 1;"
+        sqlSelect = "SELECT * FROM matchmaking_pool WHERE horse_id != ? AND horse_id != ? LIMIT 1;"
     }
     
-    db.query(sqlSelect, [walletAddress, dragonId], (err, result) => {
+    db.query(sqlSelect, [walletAddress, horseId], (err, result) => {
         if (err) console.log(err)
         if (result) console.log(result)
 
@@ -83,7 +83,7 @@ app.get('/api/get_opponent', (req, res) => {
 
 app.post('/api/join_matchmaking_pool', (req, res) => {
     const walletAddress = req.body.walletAddress
-    const dragonId = req.body.dragonId
+    const horseId = req.body.horseId
     const playerName = req.body.playerName
 
     const lettersAndNumbersPattern = /^[a-zA-Z0-9]+$/;
@@ -91,26 +91,26 @@ app.post('/api/join_matchmaking_pool', (req, res) => {
         return res.status(400).json({ err: "Invalid input. walletAddress no special characters and no numbers, please!"})
 
     const numbersPattern = /^[0-9]+$/;
-    if(dragonId != undefined && dragonId != null && !dragonId.toString().match(numbersPattern))
-        return res.status(400).json({ err: "Invalid input. dragonId only numbers!"})
+    if(horseId != undefined && horseId != null && !horseId.toString().match(numbersPattern))
+        return res.status(400).json({ err: "Invalid input. horseId only numbers!"})
 
     if(playerName != undefined && playerName != null && !playerName.toString().match(lettersAndNumbersPattern))
         return res.status(400).json({ err: "Invalid input. playerName no special characters and no numbers, please!"})
 
-    let sqlSelect = "SELECT * FROM matchmaking_pool WHERE wallet_address = ? AND dragon_id = ? LIMIT 1;"
+    let sqlSelect = "SELECT * FROM matchmaking_pool WHERE wallet_address = ? AND horse_id = ? LIMIT 1;"
     
-    db.query(sqlSelect, [walletAddress, dragonId], (err, result) => {
+    db.query(sqlSelect, [walletAddress, horseId], (err, result) => {
         if (err) console.log(err)
         if (result) {
             console.log(result)
             if (result.length > 0) {
-                console.log("Found dragonId already in pool")
+                console.log("Found horseId already in pool")
                 result[0] = true
                 res.send(result)
             }
             else {
-                const sqlInsert = "INSERT INTO matchmaking_pool (wallet_address, dragon_id, date_joined, player_name) VALUES (?, ?, '" + moment.utc().format('YYYY-MM-DD HH:mm:ss') + "', ?);"
-                db.query(sqlInsert, [walletAddress, dragonId, playerName], (err2, result2) => {
+                const sqlInsert = "INSERT INTO matchmaking_pool (wallet_address, horse_id, date_joined, player_name) VALUES (?, ?, '" + moment.utc().format('YYYY-MM-DD HH:mm:ss') + "', ?);"
+                db.query(sqlInsert, [walletAddress, horseId, playerName], (err2, result2) => {
                     if (err2) console.log(err2)
                     if (result2) console.log(result2.insertId)
             
@@ -124,12 +124,12 @@ app.post('/api/join_matchmaking_pool', (req, res) => {
 app.post('/api/play_match', async (req, res) => {
     const walletAddress1 = req.body.walletAddress1
     const walletAddress2 = req.body.walletAddress2
-    const dragonId1 = req.body.dragonId1
-    const dragonId2 = req.body.dragonId2
+    const horseId1 = req.body.horseId1
+    const horseId2 = req.body.horseId2
     const player1 = req.body.player1
     const player2 = req.body.player2
     let err = ""
-    console.log("Call play match " + walletAddress1 + " (" + dragonId1 + ") vs " + walletAddress2 + " (" + dragonId2 + ")")
+    console.log("Call play match " + walletAddress1 + " (" + horseId1 + ") vs " + walletAddress2 + " (" + horseId2 + ")")
 
     const lettersAndNumbersPattern = /^[a-zA-Z0-9]+$/;
     if(walletAddress1 != undefined && walletAddress1 != null && !walletAddress1.match(lettersAndNumbersPattern)) {
@@ -149,28 +149,28 @@ app.post('/api/play_match', async (req, res) => {
     }
 
     const numbersPattern = /^[0-9]+$/;
-    if(dragonId1 != undefined && dragonId1 != null && !dragonId1.toString().match(numbersPattern))
-        return res.status(400).json({ err: "Invalid input. dragonId1 only numbers!"})
-    if(dragonId2 != undefined && dragonId2 != null && !dragonId2.toString().match(numbersPattern))
-        return res.status(400).json({ err: "Invalid input. dragonId2 only numbers!"})
+    if(horseId1 != undefined && horseId1 != null && !horseId1.toString().match(numbersPattern))
+        return res.status(400).json({ err: "Invalid input. horseId1 only numbers!"})
+    if(horseId2 != undefined && horseId2 != null && !horseId2.toString().match(numbersPattern))
+        return res.status(400).json({ err: "Invalid input. horseId2 only numbers!"})
 
-    const battleLog = await battle(dragonId1, dragonId2)
-    if (battleLog == null) {
-        console.log("battleLog is null")
+    const raceLog = await race(horseId1, horseId2)
+    if (raceLog == null) {
+        console.log("raceLog is null")
         return;
     }
 
-    const winner = battleLog.winner
-    delete battleLog["winner"]
-    console.log("battleLog:")
-    console.log(battleLog)
+    const winner = raceLog.winner
+    delete raceLog["winner"]
+    console.log("raceLog:")
+    console.log(raceLog)
 
-    const sqlInsert = "INSERT INTO match_history (wallet1, wallet2, dragon1, dragon2, battle_log, winner, date_played, player1, player2) VALUES (?, ?, ?, ?, ?, ?, '" + moment.utc().format('YYYY-MM-DD HH:mm:ss') + "', ?, ?);"
-    db.query(sqlInsert, [walletAddress1, walletAddress2, dragonId1, dragonId2, JSON.stringify(battleLog), winner, player1, player2], (err, result) => {
+    const sqlInsert = "INSERT INTO match_history (wallet1, wallet2, horse1, horse2, race_log, winner, date_played, player1, player2) VALUES (?, ?, ?, ?, ?, ?, '" + moment.utc().format('YYYY-MM-DD HH:mm:ss') + "', ?, ?);"
+    db.query(sqlInsert, [walletAddress1, walletAddress2, horseId1, horseId2, JSON.stringify(raceLog), winner, player1, player2], (err, result) => {
         if (err) console.log(err)
         if (result) {
-            const sqlDelete = "DELETE FROM matchmaking_pool WHERE (wallet_address = ? AND dragon_id = ?) OR (wallet_address = ? AND dragon_id = ?);"
-            db.query(sqlDelete, [walletAddress1, dragonId1, walletAddress2, dragonId2], (err2, result2) => {
+            const sqlDelete = "DELETE FROM matchmaking_pool WHERE (wallet_address = ? AND horse_id = ?) OR (wallet_address = ? AND horse_id = ?);"
+            db.query(sqlDelete, [walletAddress1, horseId1, walletAddress2, horseId2], (err2, result2) => {
                 if (err2) console.log(err2)
                 if (result2) {
                     console.log(result)

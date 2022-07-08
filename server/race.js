@@ -13,47 +13,48 @@ const seaport = new OpenSea.OpenSeaPort(provider, {
 })
 
 
-export const battle = async function(dragonId1, dragonId2) {
-    console.log("battle " + dragonId1 + " vs " + dragonId2)
+export const race = async function(horseId1, horseId2) {
+    console.log("race " + horseId1 + " vs " + horseId2)
 
-    let dragons = await fetchDragons(dragonId1, dragonId2)
-    if (dragons == null || dragons[0] == null || dragons[1] == null) return null
+    let horses = await fetchHorses(horseId1, horseId2)
+    if (horses == null || horses[0] == null || horses[1] == null) return null
 
-    // console.log(dragons[0])
-    // console.log(dragons[1])
+    // console.log(horses[0])
+    // console.log(horses[1])
 
-    let battleLog = []
-    let dragonAttacking = Math.floor(Math.random() * 2)
+    let raceLog = []
+    let horseAttacking = Math.floor(Math.random() * 2)
 
-    while(dragons[0].Health > 0 && dragons[1].Health > 0) {
-        let isCriticalStrike = Math.floor(Math.random() * 100) < dragons[dragonAttacking].Luck * 5
-        let attackValue = Math.floor(Math.random() * 20) + dragons[dragonAttacking].Attack + (isCriticalStrike ? 5 : 0)
-        attackValue -= dragons[1 - dragonAttacking].Defense
-        if (attackValue < 0) {
-            attackValue = 0
-        }
+    // while(horses[0].Health > 0 && horses[1].Health > 0) {
+    //     let isCriticalStrike = Math.floor(Math.random() * 100) < horses[horseAttacking].Luck * 5
+    //     let attackValue = Math.floor(Math.random() * 20) + horses[horseAttacking].Attack + (isCriticalStrike ? 5 : 0)
+    //     attackValue -= horses[1 - horseAttacking].Defense
+    //     if (attackValue < 0) {
+    //         attackValue = 0
+    //     }
 
-        let battleAction = {
-            dragon: dragonAttacking + 1,
-            attackValue: attackValue,
-            isCriticalStrike: isCriticalStrike
-        }
+    //     let raceAction = {
+    //         horse: horseAttacking + 1,
+    //         attackValue: attackValue,
+    //         isCriticalStrike: isCriticalStrike
+    //     }
 
-        dragons[1 - dragonAttacking].Health -= attackValue
+    //     horses[1 - horseAttacking].Health -= attackValue
 
-        battleLog.push(battleAction)
-        dragonAttacking = 1 - dragonAttacking
-    }
+    //     raceLog.push(raceAction)
+    //     horseAttacking = 1 - horseAttacking
+    // }
 
-    battleLog.winner = dragons[0].Health <= 0 ? 2 : 1
+    // raceLog.winner = horses[0].Health <= 0 ? 2 : 1
+    raceLog.winner = 1
 
-    return battleLog
+    return raceLog
 }
 
-async function fetchDragons(dragonId1, dragonId2) {
-    let dragons = []
+async function fetchHorses(horseId1, horseId2) {
+    let horses = []
 
-    // dragons.push({
+    // horses.push({
     //     "traits": [
     //         {
     //             "trait_type": "Breed",
@@ -97,7 +98,7 @@ async function fetchDragons(dragonId1, dragonId2) {
     //         }
     //     ],
     // })
-    // dragons.push({
+    // horses.push({
     //     "traits": [
     //         {
     //             "trait_type": "Breed",
@@ -142,29 +143,29 @@ async function fetchDragons(dragonId1, dragonId2) {
     //     ],
     // })
 
-    dragons.push(await seaport.api.getAsset({
+    horses.push(await seaport.api.getAsset({
         tokenAddress: configContract.CONTRACT_ADDRESS,
-        tokenId: dragonId1
+        tokenId: horseId1
     }))
 
-    dragons.push(await seaport.api.getAsset({
+    horses.push(await seaport.api.getAsset({
         tokenAddress: configContract.CONTRACT_ADDRESS,
-        tokenId: dragonId2
+        tokenId: horseId2
     }))
 
     // console.log("asset:")
     // console.log(asset)
 
-    // console.log("dragons: " + dragons)
+    // console.log("horses: " + horses)
 
-    // await Axios.get(`https://api.opensea.io/api/v1/asset/0x91a96a8ed695b7c59c01f845f7bb522fe906d88d/${dragonId1}`, {
+    // await Axios.get(`https://api.opensea.io/api/v1/asset/0x91a96a8ed695b7c59c01f845f7bb522fe906d88d/${horseId1}`, {
     //     params: {
     //     },
     //   }).then((response) => { 
     //       console.log(response)
     //   })
 
-    // dragons.push(await fetch(`https://api.opensea.io/api/v1/asset/0x91a96a8ed695b7c59c01f845f7bb522fe906d88d/${dragonId1}`)
+    // horses.push(await fetch(`https://api.opensea.io/api/v1/asset/0x91a96a8ed695b7c59c01f845f7bb522fe906d88d/${horseId1}`)
     // .then((res) => { return res })
     // .catch((e) => {
     //   console.error(e)
@@ -172,7 +173,7 @@ async function fetchDragons(dragonId1, dragonId2) {
     //   return null
     // }))
 
-    // dragons.push(await fetch(`https://api.opensea.io/api/v1/asset/0x91a96a8ed695b7c59c01f845f7bb522fe906d88d/${dragonId2}`)
+    // horses.push(await fetch(`https://api.opensea.io/api/v1/asset/0x91a96a8ed695b7c59c01f845f7bb522fe906d88d/${horseId2}`)
     // .then((res) => { return res })
     // .catch((e) => {
     //   console.error(e)
@@ -180,23 +181,23 @@ async function fetchDragons(dragonId1, dragonId2) {
     //   return null
     // }))
 
-    if (dragons == null || dragons[0] == null || dragons[1] == null) return null
+    if (horses == null || horses[0] == null || horses[1] == null) return null
 
-    let dragonsSimplified = []
-    for(let i = 0; i < dragons.length; i ++) {
-        dragonsSimplified.push({
-            Health: typeToHealth(dragons[i].traits.filter(e => e.trait_type == "Breed")[0].value),
-            Attack: dragons[i].traits.filter(e => e.trait_type == "Attack")[0].value,
-            Luck: dragons[i].traits.filter(e => e.trait_type == "Luck")[0].value,
-            Defense: dragons[i].traits.filter(e => e.trait_type == "Defense")[0].value
+    let horsesSimplified = []
+    for(let i = 0; i < horses.length; i ++) {
+        horsesSimplified.push({
+            // Health: typeToHealth(horses[i].traits.filter(e => e.trait_type == "Breed")[0].value),
+            // Attack: horses[i].traits.filter(e => e.trait_type == "Attack")[0].value,
+            // Luck: horses[i].traits.filter(e => e.trait_type == "Luck")[0].value,
+            // Defense: horses[i].traits.filter(e => e.trait_type == "Defense")[0].value
         })
     }
 
-    // console.log("dragonsSimplified: " + dragonsSimplified)
-    console.log("dragonsSimplified[0]: " + JSON.stringify(dragonsSimplified[0]))
-    console.log("dragonsSimplified[1]: " + JSON.stringify(dragonsSimplified[1]))
+    // console.log("horsesSimplified: " + horsesSimplified)
+    console.log("horsesSimplified[0]: " + JSON.stringify(horsesSimplified[0]))
+    console.log("horsesSimplified[1]: " + JSON.stringify(horsesSimplified[1]))
 
-    return dragonsSimplified
+    return horsesSimplified
 }
 
 function typeToHealth(breed) {

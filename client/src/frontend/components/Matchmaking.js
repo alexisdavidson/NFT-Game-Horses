@@ -9,8 +9,8 @@ const Matchmaking = () => {
     const location = useLocation();
     const [item, setItem] = useState([])
 
-    const loadOpenSeaItem = async (dragon) => {
-        let item = await fetch(`${configContract.OPENSEA_API}/asset/${configContract.CONTRACT_ADDRESS}/${dragon}`)
+    const loadOpenSeaItem = async (horse) => {
+        let item = await fetch(`${configContract.OPENSEA_API}/asset/${configContract.CONTRACT_ADDRESS}/${horse}`)
         .then((res) => res.json())
         .then((res) => { return res })
         .catch((e) => {
@@ -23,7 +23,7 @@ const Matchmaking = () => {
     }
 
     useEffect(() => {
-        loadOpenSeaItem(location.state.dragon)
+        loadOpenSeaItem(location.state.horse)
     }, [])
 
     return (

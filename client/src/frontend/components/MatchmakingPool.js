@@ -23,7 +23,7 @@ const MatchmakingPool = () => {
                     <tr>
                         <th scope="col">#</th>
                         <th scope="col">Wallet</th>
-                        <th scope="col">Dragon</th>
+                        <th scope="col">Horse</th>
                         <th scope="col">Date</th>
                     </tr>
                 </thead>
@@ -33,7 +33,7 @@ const MatchmakingPool = () => {
                             <tr>
                                 <th scope="row">{val.id}</th>
                                 <td>{val.wallet_address}</td>
-                                <td>{val.dragon_id}</td>
+                                <td>{val.horse_id}</td>
                                 <td>{val.date_joined}</td>
                             </tr>
                         );

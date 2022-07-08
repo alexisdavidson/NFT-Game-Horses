@@ -24,7 +24,7 @@ h2 {
   opacity: 0;
 }
 
-.linko.dragon-hide {
+.linko.horse-hide {
   opacity: 0;
 }
 
@@ -32,26 +32,26 @@ h2 {
   opacity: 1;
 }
 
-.dragon-flip {
+.horse-flip {
   transform: scaleX(-1);
 }
 
-.dragon-noflip {
+.horse-noflip {
 }
 
-.dragon-glow {
+.horse-glow {
     box-shadow: 0px 0px 50px #fff;
 }
 
-.dragon-glow:hover {
+.horse-glow:hover {
   /* animation: attackFlip 0.5s; */
 }
 
-.dragon-attack {
+.horse-attack {
   animation: attack 0.5s;
 }
 
-.dragon-flip-attack {
+.horse-flip-attack {
   animation: attackFlip 0.5s;
 }
 
@@ -83,11 +83,11 @@ h2 {
   100% { transform: translate(0px, 0px) scaleX(-1); }
 }
 
-.dragon-hurt {
+.horse-hurt {
   animation: shake 0.5s;
 }
 
-.dragon-flip-hurt {
+.horse-flip-hurt {
   animation: shakeFlip 0.5s;
 }
 

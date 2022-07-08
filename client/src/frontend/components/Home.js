@@ -18,11 +18,11 @@ const Home = ({ account }) => {
             }
         });
     }
-    const routeChangeMatchmaking = (dragon) =>{ 
+    const routeChangeMatchmaking = (horse) =>{ 
         let path = 'matchmaking'; 
         navigate(path, {
             state: {
-                dragon: dragon
+                horse: horse
             }
         });
     }
@@ -41,8 +41,8 @@ const Home = ({ account }) => {
         })
     }
 
-    const submitWatchBattle = (matchId) => {
-        console.log("Watch battle of match id " + matchId)
+    const submitWatchRace = (matchId) => {
+        console.log("Watch race of match id " + matchId)
         routeChangeMatch(matchId)
     }
 
@@ -53,8 +53,8 @@ const Home = ({ account }) => {
         return localStorage.getItem('playerName')
     }
 
-    const submitPick = (dragonId) => {
-        console.log("Pick dragon " + dragonId);
+    const submitPick = (horseId) => {
+        console.log("Pick horse " + horseId);
 
         let playerNameElement = document.querySelector('.playerNameControl')
         let playerName = playerNameElement.value.replace(/[^\w\s]/gi, '') // Remove special characters
@@ -64,7 +64,7 @@ const Home = ({ account }) => {
         Axios.get(configData.SERVER_URL + 'api/get_opponent', {
             params: {
                 walletAddress: account,
-                dragonId: dragonId
+                horseId: horseId
             },
           }).then((response) => {
             if (response.data.length == 0) {
@@ -72,16 +72,16 @@ const Home = ({ account }) => {
                 console.log("No opponent found. Joining matchmaking pool")
                 Axios.post(configData.SERVER_URL + 'api/join_matchmaking_pool', {
                     walletAddress: account,
-                    dragonId: dragonId,
+                    horseId: horseId,
                     playerName: playerName
                 }).then((response) => {
                     if (response.data[0] == true) {
                         console.log("Already in matchmaking pool.")
-                        alert("This dragon is already in the matchmaking pool.")
+                        alert("This horse is already in the matchmaking pool.")
                     }
                     else {
                         console.log("Matchmaking pool joined.")
-                        routeChangeMatchmaking(dragonId)
+                        routeChangeMatchmaking(horseId)
                     }
                     console.log(response)
                 })
@@ -90,14 +90,14 @@ const Home = ({ account }) => {
                 // Suitable opponent found -> play match
                 console.log(response.data)
                 
-                console.log("Opponent found. Starting match against " + response.data[0].dragon_id + ", " + response.data[0].wallet_address)
+                console.log("Opponent found. Starting match against " + response.data[0].horse_id + ", " + response.data[0].wallet_address)
                 
                 Axios.post(configData.SERVER_URL + 'api/play_match', {
                     walletAddress1: account,
-                    dragonId1: dragonId,
+                    horseId1: horseId,
                     player1: playerName,
                     walletAddress2: response.data[0].wallet_address,
-                    dragonId2: response.data[0].dragon_id,
+                    horseId2: response.data[0].horse_id,
                     player2: response.data[0].player_name
                 }).then((response) => {
                     console.log("Play match result: ")
@@ -206,8 +206,8 @@ const Home = ({ account }) => {
                                     <th scope="col">Result</th>
                                     <th scope="col">Date</th>
                                     <th scope="col">Opponent</th>
-                                    <th scope="col">Your Dragon</th>
-                                    <th scope="col">Opponent's Dragon</th>
+                                    <th scope="col">Your Horse</th>
+                                    <th scope="col">Opponent's Horse</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -215,7 +215,7 @@ const Home = ({ account }) => {
                                     return (
                                         <tr>
                                             <td>
-                                                <Button className="py-0" variant="secondary" size="sm" onClick={() => submitWatchBattle(val.id)}>
+                                                <Button className="py-0" variant="secondary" size="sm" onClick={() => submitWatchRace(val.id)}>
                                                     Replay
                                                 </Button>
                                             </td>
@@ -223,8 +223,8 @@ const Home = ({ account }) => {
                                                 : (val.winner == 2 ? <b className="text-success">Victory!</b> : <span className="text-danger">Defeat</span>)}</th>
                                             <td>{moment(val.date_played).format('MM/DD/YYYY hh:mm')}</td>
                                             <td>{val.wallet1 == account ? val.wallet2 : val.wallet1}</td>
-                                            <td>{val.wallet1 == account ? val.dragon1 : val.dragon2}</td>
-                                            <td>{val.wallet1 == account ? val.dragon2 : val.dragon1}</td>
+                                            <td>{val.wallet1 == account ? val.horse1 : val.horse2}</td>
+                                            <td>{val.wallet1 == account ? val.horse2 : val.horse1}</td>
                                         </tr>
                                     );
                                 })}
