@@ -26,7 +26,7 @@ app.use(express.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
 app.get('/api/get_matchmaking_pool', (req, res) => {
-    const sqlSelect = "SELECT * FROM matchmaking_pool;"
+    const sqlSelect = "SELECT * FROM match_players WHERE match_id IS NULL;"
     
     db.query(sqlSelect, (err, result) => {
         if (err) console.log(err)
@@ -37,16 +37,16 @@ app.get('/api/get_matchmaking_pool', (req, res) => {
 })
 
 app.get('/api/get_match_history', (req, res) => {
-    let sqlSelect = "SELECT * FROM match_history"
+    let sqlSelect = "SELECT * FROM match_history INNER JOIN match_players ON match_history.id = match_players.match_id"
 
     const walletAddress = req.query.walletAddress
     const lettersAndNumbersPattern = /^[a-z0-9]+$/;
     if(walletAddress != undefined && walletAddress != null && !walletAddress.match(lettersAndNumbersPattern))
         return res.status(400).json({ err: "Invalid input. No special characters and no numbers, please!"})
 
-    if (walletAddress != undefined && walletAddress != null) sqlSelect += " WHERE wallet1 = '" + walletAddress + "' OR wallet2 = '" + walletAddress + "'"
-    sqlSelect += " ORDER BY id DESC"
-    if (walletAddress != undefined && walletAddress != null) sqlSelect += " LIMIT 10"
+    if (walletAddress != undefined && walletAddress != null) sqlSelect += " WHERE match_players.wallet_address = '" + walletAddress + "'"
+    sqlSelect += " ORDER BY match_history.id DESC"
+    if (walletAddress != undefined && walletAddress != null) sqlSelect += " LIMIT " + process.env.MATCHHISTORYCOUNT
     sqlSelect += ";"
     
     db.query(sqlSelect, (err, result) => {
@@ -59,7 +59,7 @@ app.get('/api/get_match_history', (req, res) => {
 
 app.post('/api/pick_nft', async (req, res) => {
     const walletAddress1 = req.body.walletAddress1
-    const horseId1 = req.body.horseId1
+    const nftId1 = req.body.horseId1
     const player1 = req.body.player1
 
     // Security - Input verification
@@ -68,8 +68,8 @@ app.post('/api/pick_nft', async (req, res) => {
         return res.status(400).json({ err: "Invalid input. walletAddress no special characters and no numbers, please!"})
 
     const numbersPattern = /^[0-9]+$/;
-    if(horseId1 != undefined && horseId1 != null && !horseId1.toString().match(numbersPattern))
-        return res.status(400).json({ err: "Invalid input. horseId only numbers!"})
+    if(nftId1 != undefined && nftId1 != null && !nftId1.toString().match(numbersPattern))
+        return res.status(400).json({ err: "Invalid input. nftId only numbers!"})
 
     if(player1 != undefined && player1 != null && !player1.toString().match(lettersAndNumbersPattern))
         return res.status(400).json({ err: "Invalid input. playerName no special characters and no numbers, please!"})
@@ -77,7 +77,7 @@ app.post('/api/pick_nft', async (req, res) => {
     // Check cooldown for the nft
     let cooldownReady = true
     const playCooldown = process.env.PLAYCOOLDOWN // in minutes
-    let sqlSelect = "SELECT * FROM match_history WHERE (horse1 = '" + horseId1 + "' OR horse2 = '" + horseId1 + "') AND TIMESTAMPDIFF(MINUTE, '" + dateNow() + "', date_played) < " + playCooldown + " LIMIT 1;"
+    let sqlSelect = "SELECT * FROM match_history INNER JOIN match_players ON match_history.id = match_players.match_id WHERE match_players.nft_id = '" + nftId1 + "' AND TIMESTAMPDIFF(MINUTE, '" + dateNow() + "', match_history.date_played) < " + playCooldown + " LIMIT 1;"
     
     db.query(sqlSelect, async (err, result) => {
         if (err) console.log(err)
@@ -94,51 +94,55 @@ app.post('/api/pick_nft', async (req, res) => {
         }
         
         if (cooldownReady) {
-            // Check if opponent is in the matchmaking pool
-            let walletAddress2 = ""
-            let horseId2 = -1
-            let player2 = ""
-            sqlSelect = "SELECT * FROM matchmaking_pool WHERE wallet_address != ? AND horse_id != ? LIMIT 1;"
+            // Check if enough opponents are in the matchmaking pool
+            sqlSelect = "SELECT * FROM match_players WHERE match_id IS NULL AND wallet_address != ? AND nft_id != ? ORDER BY id LIMIT " + process.env.MAXPLAYERS + ";"
             if (canFightOwnWallet === "TRUE") {
-                sqlSelect = "SELECT * FROM matchmaking_pool WHERE horse_id != ? AND horse_id != ? LIMIT 1;"
+                sqlSelect = "SELECT * FROM match_players WHERE match_id IS NULL AND nft_id != ? AND nft_id != ? ORDER BY id LIMIT " + process.env.MAXPLAYERS + ";"
             }
             
-            db.query(sqlSelect, [walletAddress1, horseId1], async (err, result) => {
+            db.query(sqlSelect, [walletAddress1, nftId1], async (err, resultOpponents) => {
                 if (err) console.log(err)
-                if (result) {
-                    console.log(result)
-                    if (result != null && result.length > 0) {
-                        walletAddress2 = result[0].wallet_address
-                        horseId2 = result[0].horse_id
-                        player2 = result[0].player_name
-                    }
-                }
 
-                // If opponent found, play match
-                if (horseId2 != -1) {
-                    console.log("Call play match " + walletAddress1 + " (" + horseId1 + ") vs " + walletAddress2 + " (" + horseId2 + ")")
+                // If enough opponents found, play match
+                if (resultOpponents != null && resultOpponents.length >= process.env.MINPLAYERS - 1) {
+                    console.log(resultOpponents)
                         
-                    const raceLog = await race(horseId1, horseId2)
+                    const raceLog = await race(nftId1, resultOpponents[0].nft_id)
                     if (raceLog != null) {
                         const winner = raceLog.winner
                         delete raceLog["winner"]
                         console.log("raceLog:")
                         console.log(raceLog)
 
-                        const sqlInsert = "INSERT INTO match_history (wallet1, wallet2, horse1, horse2, race_log, winner, date_played, player1, player2) VALUES (?, ?, ?, ?, ?, ?, '" + dateNow() + "', ?, ?);"
-                        db.query(sqlInsert, [walletAddress1, walletAddress2, horseId1, horseId2, JSON.stringify(raceLog), winner, player1, player2], (err, result) => {
+                        const sqlInsert = "INSERT INTO match_history (race_log, winner, date_played) VALUES (?, ?, '" + dateNow() + "');"
+                        db.query(sqlInsert, [JSON.stringify(raceLog), winner], (err, result) => {
                             if (err) console.log(err)
                             if (result) {
-                                const sqlDelete = "DELETE FROM matchmaking_pool WHERE (wallet_address = ? AND horse_id = ?) OR (wallet_address = ? AND horse_id = ?);"
-                                db.query(sqlDelete, [walletAddress1, horseId1, walletAddress2, horseId2], (err2, result2) => {
+                                const matchId = result.insertId
+
+                                const sqlInsert = "INSERT INTO match_players (wallet_address, nft_id, player_name, match_id) VALUES (?, ?, ?, ?);"
+                                db.query(sqlInsert, [walletAddress1, nftId1, player1, matchId], (err2) => {
+                                    if (err2) console.log(err2)
+                                })
+
+                                let listString = ""
+                                for(let i = 0; i < resultOpponents.length; i ++) {
+                                    listString += resultOpponents[i].nft_id
+                                    if (i != resultOpponents.length - 1) {
+                                        listString +=", "
+                                    }
+                                }
+
+                                const sqlUpdate = "UPDATE match_players SET match_id = ? WHERE match_id IS NULL AND nft_id IN (" + listString + ");"
+                                db.query(sqlUpdate, [matchId], (err2, result2) => {
                                     if (err2) console.log(err2)
                                     if (result2) {
                                         console.log(result)
                                         console.log(result2)
-                                        console.log(result.insertId)
+                                        console.log(matchId)
                                         
                                         let toReturn = {}
-                                        toReturn.serverResultValue = result.insertId
+                                        toReturn.serverResultValue = matchId
                                         toReturn.serverResultType = "PLAY_MATCH" 
                                         res.send(toReturn)
                                         return
@@ -152,9 +156,9 @@ app.post('/api/pick_nft', async (req, res) => {
                 } else {
                     // If no opponent found, join matchmaking pool
                     // Check already in matchmaking_pool
-                    sqlSelect = "SELECT * FROM matchmaking_pool WHERE wallet_address = ? AND horse_id = ? LIMIT 1;"
+                    sqlSelect = "SELECT * FROM match_players WHERE match_id IS NULL AND wallet_address = ? AND nft_id = ? LIMIT 1;"
                     
-                    db.query(sqlSelect, [walletAddress1, horseId1], (err, result) => {
+                    db.query(sqlSelect, [walletAddress1, nftId1], (err, result) => {
                         if (err) console.log(err)
                         if (result) {
                             console.log(result)
@@ -166,8 +170,8 @@ app.post('/api/pick_nft', async (req, res) => {
                                 res.send(toReturn)
                             }
                             else {
-                                const sqlInsert = "INSERT INTO matchmaking_pool (wallet_address, horse_id, date_joined, player_name) VALUES (?, ?, '" + dateNow() + "', ?);"
-                                db.query(sqlInsert, [walletAddress1, horseId1, player1], (err2, result2) => {
+                                const sqlInsert = "INSERT INTO match_players (wallet_address, nft_id, player_name) VALUES (?, ?, ?);"
+                                db.query(sqlInsert, [walletAddress1, nftId1, player1], (err2, result2) => {
                                     if (err2) console.log(err2)
                                     if (result2) {
                                         console.log("insertId: " + result2.insertId)

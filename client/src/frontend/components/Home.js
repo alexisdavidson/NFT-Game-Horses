@@ -178,9 +178,7 @@ const Home = ({ account }) => {
                                     <th scope="col">Replay</th>
                                     <th scope="col">Result</th>
                                     <th scope="col">Date</th>
-                                    <th scope="col">Opponent</th>
                                     <th scope="col">Your Horse</th>
-                                    <th scope="col">Opponent's Horse</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -195,9 +193,7 @@ const Home = ({ account }) => {
                                             <th scope="row">{val.wallet1 == account ? (val.winner == 1 ? <b className="text-success">Victory!</b> : <span className="text-danger">Defeat</span>) 
                                                 : (val.winner == 2 ? <b className="text-success">Victory!</b> : <span className="text-danger">Defeat</span>)}</th>
                                             <td>{moment(val.date_played).format('MM/DD/YYYY hh:mm')}</td>
-                                            <td>{val.wallet1 == account ? val.wallet2 : val.wallet1}</td>
                                             <td>{val.wallet1 == account ? val.horse1 : val.horse2}</td>
-                                            <td>{val.wallet1 == account ? val.horse2 : val.horse1}</td>
                                         </tr>
                                     );
                                 })}

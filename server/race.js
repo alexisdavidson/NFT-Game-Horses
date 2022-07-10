@@ -13,10 +13,10 @@ const seaport = new OpenSea.OpenSeaPort(provider, {
 })
 
 
-export const race = async function(horseId1, horseId2) {
-    console.log("race " + horseId1 + " vs " + horseId2)
+export const race = async function(nftId1, nftId2) {
+    console.log("race " + nftId1 + " vs " + nftId2)
 
-    let horses = await fetchHorses(horseId1, horseId2)
+    let horses = await fetchHorses(nftId1, nftId2)
     if (horses == null || horses[0] == null || horses[1] == null) return null
 
     // console.log(horses[0])
@@ -46,7 +46,7 @@ export const race = async function(horseId1, horseId2) {
     // }
 
     // raceLog.winner = horses[0].Health <= 0 ? 2 : 1
-    raceLog.winner = 1
+    raceLog.winner = nftId1
 
     return raceLog
 }
