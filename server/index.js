@@ -37,12 +37,12 @@ app.get('/api/get_matchmaking_pool', (req, res) => {
 })
 
 app.get('/api/get_match_history', (req, res) => {
-    let sqlSelect = "SELECT * FROM match_history INNER JOIN match_players ON match_history.id = match_players.match_id"
-
     const walletAddress = req.query.walletAddress
     const lettersAndNumbersPattern = /^[a-z0-9]+$/;
     if(walletAddress != undefined && walletAddress != null && !walletAddress.match(lettersAndNumbersPattern))
         return res.status(400).json({ err: "Invalid input. No special characters and no numbers, please!"})
+
+        let sqlSelect = "SELECT match_history.winner, match_history.date_played, match_players.nft_id FROM match_history INNER JOIN match_players ON match_history.id = match_players.match_id"
 
     if (walletAddress != undefined && walletAddress != null) sqlSelect += " WHERE match_players.wallet_address = '" + walletAddress + "'"
     sqlSelect += " ORDER BY match_history.id DESC"

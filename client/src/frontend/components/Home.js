@@ -190,10 +190,9 @@ const Home = ({ account }) => {
                                                     Replay
                                                 </Button>
                                             </td>
-                                            <th scope="row">{val.wallet1 == account ? (val.winner == 1 ? <b className="text-success">Victory!</b> : <span className="text-danger">Defeat</span>) 
-                                                : (val.winner == 2 ? <b className="text-success">Victory!</b> : <span className="text-danger">Defeat</span>)}</th>
+                                            <th scope="row">{val.winner == val.nft_id ? <b className="text-success">Victory!</b> : <span className="text-danger">Defeat</span>}</th>
                                             <td>{moment(val.date_played).format('MM/DD/YYYY hh:mm')}</td>
-                                            <td>{val.wallet1 == account ? val.horse1 : val.horse2}</td>
+                                            <td>{val.nft_id}</td>
                                         </tr>
                                     );
                                 })}
