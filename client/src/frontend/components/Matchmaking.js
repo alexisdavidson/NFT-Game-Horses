@@ -33,7 +33,7 @@ const Matchmaking = () => {
                 <div className="px-5">
                     <Row xs={1} md={2} lg={4} className="g-4 py-5 d-flex justify-content-center">
                         <Col className="overflow-hidden">
-                            <Card bg="dark">
+                            <Card>
                                 <Card.Img variant="top" src={item.image_url} />
                                 <Card.Body color="secondary">
                                 <Card.Title>{item.name}</Card.Title>

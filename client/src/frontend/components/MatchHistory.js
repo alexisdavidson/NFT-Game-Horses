@@ -39,7 +39,7 @@ const MatchHistory = () => {
     return (
         <div className="flex justify-center">
             <h2>Match History</h2>
-            <table className="table table-bordered table-striped table-dark">
+            <table className="table table-bordered table-striped table-light">
                 <thead>
                     <tr>
                         <th scope="col">#</th>

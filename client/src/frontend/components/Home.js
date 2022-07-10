@@ -56,60 +56,35 @@ const Home = ({ account }) => {
     const submitPick = (horseId) => {
         console.log("Pick horse " + horseId);
 
-        let playerNameElement = document.querySelector('.playerNameControl')
-        let playerName = playerNameElement.value.replace(/[^\w\s]/gi, '') // Remove special characters
-        console.log("Save username " + playerName);
-        localStorage.setItem('playerName', playerName);
-        
-        Axios.get(configData.SERVER_URL + 'api/get_opponent', {
-            params: {
-                walletAddress: account,
-                horseId: horseId
-            },
-          }).then((response) => {
-            if (response.data.length == 0) {
-                // No suitable opponent in matchmaking pool -> join the pool 
-                console.log("No opponent found. Joining matchmaking pool")
-                Axios.post(configData.SERVER_URL + 'api/join_matchmaking_pool', {
-                    walletAddress: account,
-                    horseId: horseId,
-                    playerName: playerName
-                }).then((response) => {
-                    if (response.data[0] == true) {
-                        console.log("Already in matchmaking pool.")
-                        alert("This horse is already in the matchmaking pool.")
-                    }
-                    else {
-                        console.log("Matchmaking pool joined.")
-                        routeChangeMatchmaking(horseId)
-                    }
-                    console.log(response)
-                })
-            }
-            else {
-                // Suitable opponent found -> play match
-                console.log(response.data)
-                
-                console.log("Opponent found. Starting match against " + response.data[0].horse_id + ", " + response.data[0].wallet_address)
-                
-                Axios.post(configData.SERVER_URL + 'api/play_match', {
-                    walletAddress1: account,
-                    horseId1: horseId,
-                    player1: playerName,
-                    walletAddress2: response.data[0].wallet_address,
-                    horseId2: response.data[0].horse_id,
-                    player2: response.data[0].player_name
-                }).then((response) => {
-                    console.log("Play match result: ")
-                    let matchId = response.data[0]
-                    console.log(matchId)
-                    
-                    routeChangeMatch(matchId)
-                })
+        // let playerNameElement = document.querySelector('.playerNameControl')
+        // let playerName = playerNameElement.value.replace(/[^\w\s]/gi, '') // Remove special characters
+        // console.log("Save username " + playerName);
+        // localStorage.setItem('playerName', playerName);
+        let playerName = "playerName"
 
+        Axios.post(configData.SERVER_URL + 'api/pick_nft', {
+            walletAddress1: account,
+            horseId1: horseId,
+            player1: playerName
+        }).then((response) => {
+            const serverResultType = response.data.serverResultType
+            const serverResultValue = response.data.serverResultValue
+            console.log("Server result type: " + serverResultType)
+            console.log("Server result value: " + serverResultValue ?? "null")
+
+            if (serverResultType == "COOLDOWN") {
+                alert("This horse is on cooldown")
+            }
+            else if (serverResultType == "ALREADY_POOL") {
+                alert("This horse is already in the matchmaking pool.")
+            }
+            else if (serverResultType == "JOINED_POOL") {
+                routeChangeMatchmaking(horseId)
+            }
+            else if (serverResultType == "PLAY_MATCH") {
+                routeChangeMatch(serverResultValue)
             }
         })
-        
     }
 
     const loadOpenSeaItems = async () => {
@@ -143,22 +118,21 @@ const Home = ({ account }) => {
     return (
         <div className="flex justify-center">
             <div className="px-5 container">
-                <Row>
+                {/* <Row>
                     <Col lg={4} className="g-4">
                         <Form className="pt-2 d-flex">
                             <Form.Group className="mb-3 pr-1" controlId="formPlayerName">
                                 <Form.Control className="playerNameControl" type="text" placeholder="Enter player name" defaultValue={getPlayerNameFromStorage()} style={{width: "90%"}}/>
                             </Form.Group>
-                            {/* <Button variant="success" type="submit" style={{height: "50%"}}>Save</Button> */}
                         </Form>
                     </Col>
-                </Row>
+                </Row> */}
 
                 {items.length > 0 ?
-                    <Row xs={1} md={2} lg={4} className="g-4 pb-5 pt-3">
+                    <Row xs={1} md={2} lg={4} className="g-4 pb-5 pt-5">
                         {items.map((item, idx) => (
                             <Col key={idx} className="overflow-hidden">
-                                <Card bg="dark">
+                                <Card>
                                     <Card.Img variant="top" src={item.image_url} />
                                     <Card.Body color="secondary">
                                     <Card.Title>{item.name}</Card.Title>
@@ -197,8 +171,8 @@ const Home = ({ account }) => {
                 
                 {matchHistory.length > 0 ?
                     <Row>
-                        <h2>Match History</h2>
-                        <table className="table table-bordered table-striped table-dark">
+                        {/* <h2>Match History</h2> */}
+                        <table className="table table-bordered table-striped table-light">
                             <thead>
                                 <tr>
                                     <th scope="col">Replay</th>
