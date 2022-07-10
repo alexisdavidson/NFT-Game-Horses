@@ -6,8 +6,10 @@ body {
   background-color: white;
   background-image: url("../images/bg.jpg");
   background-repeat: no-repeat;
-  background-size: 100%;
+  background-size: cover;
 }
+
+html,body { height:100%; }
 
 h2 {
   margin-top: 20px;
