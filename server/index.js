@@ -106,16 +106,22 @@ app.post('/api/pick_nft', async (req, res) => {
                 // If enough opponents found, play match
                 if (resultOpponents != null && resultOpponents.length >= process.env.MINPLAYERS - 1) {
                     console.log(resultOpponents)
-                        
-                    const raceLog = await race(nftId1, resultOpponents[0].nft_id)
+                    
+                    let nftList = [parseInt(nftId1)]
+                    for(let i = 0; i < resultOpponents.length; i ++) {
+                        nftList.push(resultOpponents[i].nft_id);
+                    }
+
+                    const raceLog = await race(nftList)
                     if (raceLog != null) {
                         const winner = raceLog.winner
                         delete raceLog["winner"]
+                        console.log("winner: " + winner)
                         console.log("raceLog:")
                         console.log(raceLog)
 
                         const sqlInsert = "INSERT INTO match_history (race_log, winner, date_played) VALUES (?, ?, '" + dateNow() + "');"
-                        db.query(sqlInsert, [JSON.stringify(raceLog), winner], (err, result) => {
+                        db.query(sqlInsert, [JSON.stringify(raceLog.finishers), winner], (err, result) => {
                             if (err) console.log(err)
                             if (result) {
                                 const matchId = result.insertId
