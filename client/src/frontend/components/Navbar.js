@@ -10,7 +10,7 @@ const Navigation = ({ web3Handler, account }) => {
             <Container>
                 <Navbar.Brand as={Link} to="/">
                     {/* <img src={dice} width="40" height="40" className="" alt="" /> */}
-                    &nbsp; Unstable Horses Yard Racing Game
+                    &nbsp; Gallop
                 </Navbar.Brand>
                 <Navbar.Toggle aria-controls="responsive-navbar-nav" />
                 <Navbar.Collapse id="responsive-navbar-nav">
