@@ -1,14 +1,31 @@
 import {
-    Link
+    Link,
+    useNavigate
 } from "react-router-dom"
 import { Navbar, Nav, Button, Container } from 'react-bootstrap'
-import dice from '../images/Dice.PNG'
+import { useUnityContext } from "react-unity-webgl";
 
 const Navigation = ({ web3Handler, account }) => {
+    
+    const { unload } = useUnityContext({
+        loaderUrl: "build/Build.loader.js",
+        dataUrl: "build/Build.data",
+        frameworkUrl: "build/Build.framework.js",
+        codeUrl: "build/Build.wasm",
+      });
+
+    
+    let navigate = useNavigate(); 
+    async function handleClickHome() {
+        await unload();
+        navigate("/");
+    }
+
     return (
         <Navbar expand="lg" bg="light">
             <Container>
                 <Navbar.Brand as={Link} to="/">
+                {/* <Navbar.Brand as={Link} onClick={handleClickHome}> */}
                     {/* <img src={dice} width="40" height="40" className="" alt="" /> */}
                     &nbsp; Gallop
                 </Navbar.Brand>

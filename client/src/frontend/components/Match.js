@@ -8,7 +8,7 @@ import { Unity, useUnityContext } from "react-unity-webgl";
 const Match = () => {
     const location = useLocation();
 
-    const { unityProvider, isLoaded, loadingProgression, sendMessage, addEventListener, removeEventListener } = useUnityContext({
+    const { unityProvider, isLoaded, loadingProgression, sendMessage, addEventListener, removeEventListener, unload } = useUnityContext({
         loaderUrl: "build/Build.loader.js",
         dataUrl: "build/Build.data",
         frameworkUrl: "build/Build.framework.js",
