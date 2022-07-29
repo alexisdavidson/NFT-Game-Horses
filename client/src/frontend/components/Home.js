@@ -138,12 +138,16 @@ const Home = ({ account }) => {
                                     <Card.Title>{item.name}</Card.Title>
                                     <Card.Text>
                                         Breed: {item.traits.filter(e => e.trait_type == "breed")[0]?.value}
+                                        <br/>
+                                        Strength: {item.traits.filter(e => e.trait_type == "Strength")[0]?.value}
+                                        <br/>
+                                        Stamina: {item.traits.filter(e => e.trait_type == "Stamina")[0]?.value}
+                                        <br/>
+                                        Speed: {item.traits.filter(e => e.trait_type == "Natural Speed")[0]?.value}
                                         {/* <br/>
                                         Alertness: {item.traits.filter(e => e.trait_type == "Alertness")[0]?.value}
                                         <br/>
                                         Adaptibility: {item.traits.filter(e => e.trait_type == "Adaptibility")[0]?.value}
-                                        <br/>
-                                        Strength: {item.traits.filter(e => e.trait_type == "Strength")[0]?.value}
                                         <br/>
                                         Pedigree: {item.traits.filter(e => e.trait_type == "Pedigree")[0]?.value}
                                         <br/>

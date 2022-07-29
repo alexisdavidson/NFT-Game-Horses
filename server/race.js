@@ -15,19 +15,29 @@ const seaport = new OpenSea.OpenSeaPort(provider, {
 export const race = async function(nftList) {
     console.log("race " + nftList)
 
-    // let horses = await fetchHorses(nftList)
-    // if (horses == null)
-    //     return null
+    let horses = await fetchHorses(nftList)
+    if (horses == null)
+        return null
 
     // Compute the winner and order of horses reaching the finishing line
-    nftList.sort(() => Math.random() - 0.5);
-    console.log("Shuffled array: " + nftList)
+    // nftList.sort(() => Math.random() - 0.5);
+    // console.log("Shuffled array: " + nftList)
+    for(let i = 0; i < horses.length; i ++) {
+        horses[i].points = horses[i].Strength + horses[i].Stamina + horses[i].Speed + Math.floor(Math.random() * 100);
+    }
+
+    horses.sort((a,b) => b.points - a.points);
+    console.log("Sorted array: " + JSON.stringify(horses));
+
     let raceLog = []
     raceLog.winner = nftList[0]
-    raceLog.finishers = nftList
+    raceLog.finishers = horses.map(a => parseInt(a.TokenId));
+    console.log("finishers: " + raceLog.finishers);
 
     return raceLog
 }
+
+const defaultTraitValueIfNull = 50;
 
 async function fetchHorses(nftList) {
     let horses = []
@@ -48,10 +58,10 @@ async function fetchHorses(nftList) {
     let horsesSimplified = []
     for(let i = 0; i < horses.length; i ++) {
         horsesSimplified.push({
-            // Health: typeToHealth(horses[i].traits.filter(e => e.trait_type == "Breed")[0].value),
-            // Attack: horses[i].traits.filter(e => e.trait_type == "Attack")[0].value,
-            // Luck: horses[i].traits.filter(e => e.trait_type == "Luck")[0].value,
-            // Defense: horses[i].traits.filter(e => e.trait_type == "Defense")[0].value
+            TokenId: horses[i].tokenId,
+            Strength: horses[i].traits.filter(e => e.trait_type == "Strength")[0]?.value ?? defaultTraitValueIfNull,
+            Stamina: horses[i].traits.filter(e => e.trait_type == "Stamina")[0]?.value ?? defaultTraitValueIfNull,
+            Speed: horses[i].traits.filter(e => e.trait_type == "Natural Speed")[0]?.value ?? defaultTraitValueIfNull
         })
         console.log("horsesSimplified[" + i + "]: " + JSON.stringify(horsesSimplified[i]))
     }
