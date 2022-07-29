@@ -4,7 +4,7 @@ import dotenv from 'dotenv'
 import cors from 'cors'
 import bodyParser from 'body-parser'
 import moment from 'moment'
-import { race } from './race.js'
+import { race, tokenIdBelongstoAddress } from './race.js'
 
 const app = express()
 
@@ -73,6 +73,10 @@ app.post('/api/pick_nft', async (req, res) => {
 
     if(player1 != undefined && player1 != null && !player1.toString().match(lettersAndNumbersPattern))
         return res.status(400).json({ err: "Invalid input. playerName no special characters and no numbers, please!"})
+
+    // Verify if this token Id belongs to this wallet address
+    if (await tokenIdBelongstoAddress(nftId1, walletAddress1) === false)
+        return res.status(400).json({ err: "This NFT does not belong to this wallet!"})
     
     // Check cooldown for the nft
     let cooldownReady = true

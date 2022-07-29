@@ -12,6 +12,22 @@ const seaport = new OpenSea.OpenSeaPort(provider, {
   apiKey: process.env.OPENSEAAPIKEY
 })
 
+
+export const tokenIdBelongstoAddress = async function(tokenId, walletAddress) {
+    console.log("tokenIdBelongstoAddress " + tokenId + " " + walletAddress);
+
+    let horse = await seaport.api.getAsset({
+        tokenAddress: configContract.CONTRACT_ADDRESS,
+        tokenId: tokenId
+    })
+
+    if (horse != null)
+        console.log("horse " + tokenId + " " + horse.owner.address);
+    else console.log("horse null")
+
+    return horse != null && horse.owner.address == walletAddress;
+}
+
 export const race = async function(nftList) {
     console.log("race " + nftList)
 
