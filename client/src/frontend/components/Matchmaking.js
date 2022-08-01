@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Row, Col, Card } from 'react-bootstrap'
 import {useLocation} from 'react-router-dom';
-import dice from '../images/Dice.PNG'
+import logo from '../images/Gallop_logo.png'
 import configContract from "./configContract.json";
 
 
@@ -38,7 +38,7 @@ const Matchmaking = () => {
                                 <Card.Body color="secondary">
                                 <Card.Title>{item.name}</Card.Title>
                                 <Card.Text>
-                                    <img src={dice} width="40" height="40" className="" alt="" />
+                                    <img src={logo} width="40" height="40" className="" alt="" />
                                 </Card.Text>
                                 </Card.Body>
                             </Card>

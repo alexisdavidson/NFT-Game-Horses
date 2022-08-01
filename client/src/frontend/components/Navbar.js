@@ -4,6 +4,7 @@ import {
 } from "react-router-dom"
 import { Navbar, Nav, Button, Container } from 'react-bootstrap'
 import { useUnityContext } from "react-unity-webgl";
+import logo from '../images/Gallop_logo.png'
 
 const Navigation = ({ web3Handler, account }) => {
     
@@ -26,7 +27,7 @@ const Navigation = ({ web3Handler, account }) => {
             <Container>
                 <Navbar.Brand as={Link} to="/">
                 {/* <Navbar.Brand as={Link} onClick={handleClickHome}> */}
-                    {/* <img src={dice} width="40" height="40" className="" alt="" /> */}
+                    <img src={logo} width="40" height="40" className="" alt="" />
                     &nbsp; Gallop
                 </Navbar.Brand>
                 <Navbar.Toggle aria-controls="responsive-navbar-nav" />
