@@ -4,6 +4,7 @@ import {useLocation} from 'react-router-dom';
 import Axios from 'axios'
 import configData from "./configData.json";
 import { Unity, useUnityContext } from "react-unity-webgl";
+import map from '../images/map.png'
 
 const Match = () => {
     const location = useLocation();
@@ -33,8 +34,9 @@ const Match = () => {
       
     useEffect(() => {
         addEventListener("HandleRequestData", handleRequestData);
-        return () => {
+        return async () => {
           removeEventListener("HandleRequestData", handleRequestData);
+          await unload();
         };
       }, [addEventListener, removeEventListener, handleRequestData]);
 
@@ -49,7 +51,8 @@ const Match = () => {
                         // We'll conditionally render the loading overlay if the Unity
                         // Application is not loaded.
                         <div className="loading-overlay">
-                        <p>Loading... ({loadingPercentage}%)</p>
+                            <p>Loading... ({loadingPercentage}%)</p>
+                            <img src={map} className="" alt="" />
                         </div>
                     )}
                     <Unity unityProvider={unityProvider} style={{width: "1400px", height: "600px"}}/>
